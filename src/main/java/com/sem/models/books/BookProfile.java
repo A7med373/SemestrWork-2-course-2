@@ -1,17 +1,22 @@
 package com.sem.models.books;
 
+import com.sem.models.user.UserProfile;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Date;
 import java.util.UUID;
 
 @Entity(name = "Books")
 @NoArgsConstructor
+@Setter
+@Getter
 public class BookProfile {
     @Id
     @Column
-    private int id;
+    private Long id;
 
     @Column
     private String name;
@@ -19,9 +24,9 @@ public class BookProfile {
     @Column
     private Date year;
 
-    @Column
-    @ManyToOne
-    private UUID authorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private UserProfile author;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -33,5 +38,5 @@ public class BookProfile {
             fetch = FetchType.LAZY,
             optional = false
     )
-    private Description descriptionId;
+    private BookDescription bookDescriptionId;
 }

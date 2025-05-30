@@ -2,6 +2,7 @@ package com.sem.models.review;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sem.models.user.User;
+import com.sem.models.user.UserProfile;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
@@ -13,13 +14,17 @@ import java.util.List;
 public class Review {
     @Id
     @Column
-    private long id;
+    private Long id;
+
     @Column
     @Lob
     private String review;
-    @Column
+
     @OneToOne
-    private User user;
+    @MapsId
+    @JoinColumn(name = "id")
+    private UserProfile user;
+
     @OneToMany(
             mappedBy = "review",
             cascade = CascadeType.ALL,

@@ -6,20 +6,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import java.time.Instant;
 import java.util.UUID;
 
-@Entity
 @Getter
 @Setter
+@Entity(name = "password_history")
 @NoArgsConstructor
-public class User {
+public class PasswordHistory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private String password;
+    @ManyToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private UUID userId;
 
-    @Column
-    private Role role;
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Column(nullable = false)
+    private Instant createdAt;
+
 }

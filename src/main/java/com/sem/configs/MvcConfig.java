@@ -16,7 +16,6 @@ import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 @EnableWebMvc
 public class MvcConfig implements WebMvcConfigurer {
 
-    // 1. Конфигурация шаблонизатора Thymeleaf
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
@@ -45,7 +44,6 @@ public class MvcConfig implements WebMvcConfigurer {
         return viewResolver;
     }
 
-    // 2. Обработка статических ресурсов
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/static/**")
@@ -56,14 +54,12 @@ public class MvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("/webjars/")
                 .setCachePeriod(3600);
 
-        // Для Swagger UI
         registry.addResourceHandler("swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    // 3. Простые контроллеры представлений
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
@@ -72,16 +68,4 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/chat").setViewName("chat");
     }
 
-    // 4. Дополнительные настройки (опционально)
-    /*
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoggingInterceptor());
-    }
-
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(new MappingJackson2HttpMessageConverter());
-    }
-    */
 }

@@ -1,15 +1,21 @@
 package com.sem.models.books;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-public class Description {
+@NoArgsConstructor
+public class BookDescription {
     @Id
     @Column
-    private int id;
+    private Long id;
 
     @Column
     @Lob
+    @Getter
+    @Setter
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)
