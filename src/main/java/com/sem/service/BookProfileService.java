@@ -31,12 +31,10 @@ public class BookProfileService {
 
     @Transactional
     public BookProfile createBook(BookProfile book, UUID authorId) {
-        // Проверка прав доступа
         if (!authorizationService.hasAccess(authorId, "AUTHOR")) {
             throw new AccessDeniedException("Only authors can create books");
         }
 
-        // Связывание с автором
         UserProfile author = new UserProfile();
         author.setId(authorId);
         book.setAuthor(author);
@@ -48,7 +46,6 @@ public class BookProfileService {
     public BookProfile updateBookDescription(Long bookId, String description) {
         BookProfile book = getBookById(bookId);
 
-        // Проверка прав (автор или админ)
         UUID authorId = book.getAuthor().getId();
         if (!authorizationService.hasAccess(authorId, "ADMIN") &&
                 !authorizationService.hasAccess(authorId, null)) {
@@ -65,7 +62,6 @@ public class BookProfileService {
     public void deleteBook(Long bookId) {
         BookProfile book = getBookById(bookId);
 
-        // Проверка прав (автор или админ)
         UUID authorId = book.getAuthor().getId();
         if (!authorizationService.hasAccess(authorId, "ADMIN") &&
                 !authorizationService.hasAccess(authorId, null)) {
@@ -78,5 +74,10 @@ public class BookProfileService {
     @Transactional(readOnly = true)
     public List<BookProfile> searchBooksByDescription(String query) {
         return bookProfileRepository.findByDescription(query);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookProfile> searchBooksByName(String query) {
+        return bookProfileRepository.findByName(query);
     }
 }

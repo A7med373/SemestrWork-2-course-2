@@ -3,6 +3,7 @@ package com.sem.service;
 import com.sem.models.user.UserProfile;
 import com.sem.repository.UserProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,19 +13,12 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
     private final CloudinaryService cloudinaryService;
     private final AuthorizationService authorizationService;
-
-    public UserProfileService(UserProfileRepository userProfileRepository,
-                              CloudinaryService cloudinaryService,
-                              AuthorizationService authorizationService) {
-        this.userProfileRepository = userProfileRepository;
-        this.cloudinaryService = cloudinaryService;
-        this.authorizationService = authorizationService;
-    }
 
     @Transactional(readOnly = true)
     public UserProfile getUserProfileById(UUID id) {
@@ -42,14 +36,13 @@ public class UserProfileService {
         UserProfile existingProfile = getUserProfileById(userId);
         existingProfile.setFirstName(updatedProfile.getFirstName());
         existingProfile.setLastName(updatedProfile.getLastName());
-        // Другие поля...
+        existingProfile.setDescription(updatedProfile.getLastName());
 
         return userProfileRepository.save(existingProfile);
     }
 
     @Transactional
     public String updateUserAvatar(UUID userId, MultipartFile avatarFile) throws IOException {
-        // Проверка прав доступа
         if (!authorizationService.hasAccess(userId, "USER")) {
             throw new AccessDeniedException("You can only update your own avatar");
         }
@@ -63,6 +56,5 @@ public class UserProfileService {
 
     @Transactional
     public void addBookToRead(UUID userId, Long bookId) {
-        // Логика добавления книги в список прочитанных
     }
 }

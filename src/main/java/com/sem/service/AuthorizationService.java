@@ -1,7 +1,6 @@
 package com.sem.service;
 
 import com.sem.models.user.UserProfile;
-import com.sem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +20,16 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration-ms}")
+    private long jwtExpirationMs;
+
+    @Value("${jwt.issuer}")
+    private String jwtIssuer;
 
     public String generateJwtToken(Authentication authentication, UserProfile userProfile) {
-        @Value("${jwt.secret}")
-        private String jwtSecret;
-
-        @Value("${jwt.expiration-ms}")
-        private long jwtExpirationMs;
-
-        @Value("${jwt.issuer}")
-        private String jwtIssuer;
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
@@ -52,19 +51,16 @@ public class AuthorizationService {
             return false;
         }
 
-        // Проверка на администратора
         if (authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return true;
         }
 
-        // Проверка владельца ресурса
         String currentUserId = authentication.getName();
         if (currentUserId.equals(resourceOwnerId.toString())) {
             return true;
         }
 
-        // Проверка роли
         if (requiredRole != null) {
             return authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_" + requiredRole));

@@ -1,16 +1,22 @@
 package com.sem.models.review;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.sem.models.user.User;
 import com.sem.models.user.UserProfile;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "Review")
 @NoArgsConstructor
+@Getter
+@Setter
 public class Review {
     @Id
     @Column
@@ -34,4 +40,12 @@ public class Review {
     @OrderBy("createdAt DESC")
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "created_at", updatable = false)
+    private Date updatedAt;
 }
