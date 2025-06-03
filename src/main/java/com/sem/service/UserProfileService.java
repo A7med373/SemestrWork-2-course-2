@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final BookProfileService bookProfileService;
     private final CloudinaryService cloudinaryService;
     private final AuthorizationService authorizationService;
 
@@ -56,5 +58,13 @@ public class UserProfileService {
 
     @Transactional
     public void addBookToRead(UUID userId, Long bookId) {
+        UserProfile user = getUserProfileById(userId);
+        user.getBooksRead().add(bookProfileService.getBookById(bookId));
+        userProfileRepository.save(getUserProfileById(userId));
+    }
+
+    @Transactional
+    public Optional<UserProfile> getUserProfileByEmail(String email){
+        return userProfileRepository.findByEmail(email);
     }
 }

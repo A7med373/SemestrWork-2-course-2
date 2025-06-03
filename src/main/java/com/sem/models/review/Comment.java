@@ -25,12 +25,12 @@ public class Comment {
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "reviewId", nullable = false)
     @JsonBackReference
     private Review review;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "authorId", nullable = false)
     private UserProfile author;
 
     @CreationTimestamp
@@ -38,6 +38,6 @@ public class Comment {
     private Date createdAt;
 
     @UpdateTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "updated_at", updatable = false)
     private Date updatedAt;
 }

@@ -46,6 +46,6 @@ public class Review {
     private Date createdAt;
 
     @UpdateTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "updated_at", updatable = false)
     private Date updatedAt;
 }

@@ -5,9 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.GeneratedValue;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity(name = "Users")
@@ -31,14 +30,13 @@ public class UserProfile {
     @Column
     private Role role;
 
-    @Column(unique = true)
     @OneToMany(
             mappedBy = "author",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             orphanRemoval = true
     )
-    private List<BookProfile> booksWritten;
+    private Set<BookProfile> booksWritten;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
@@ -46,7 +44,7 @@ public class UserProfile {
             joinColumns = @JoinColumn(name = "userId"),
             inverseJoinColumns = @JoinColumn(name = "bookId")
     )
-    private List<BookProfile> booksRead;
+    private Set<BookProfile> booksRead;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

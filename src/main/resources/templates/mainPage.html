@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booklover - Главная</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<!-- Шапка сайта с кнопками входа/регистрации -->
+<header>
+  <div class="header-left">
+    <div class="logo">Booklover</div>
+    <nav>
+      <ul class="nav-buttons">
+        <li><a href="/">Главная</a></li>
+        <li><a href="/books">Книги</a></li>
+        <li><a href="/reviews">Рецензии</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="header-right">
+    <!-- Условное отображение для авторизованных/неавторизованных -->
+    <div class="auth-section" th:if="${user}">
+      <div class="user-profile">
+        <img th:src="${user.avatarUrl}" alt="Аватар" class="user-avatar"
+             th:onclick="|window.location.href='/profile'|">
+      </div>
+    </div>
+
+    <div class="auth-section" th:unless="${user}">
+      <div class="auth-buttons">
+        <a href="/login" class="btn btn-login">Войти</a>
+        <a href="/register" class="btn btn-register">Зарегистрироваться</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Основной контент -->
+<main>
+  <!-- Секция новинок книг -->
+  <section class="new-books">
+    <h2>Новинки книг</h2>
+    <div class="books-container">
+      <div class="book-card" th:each="book : ${newBooks}">
+        <img th:src="${book.imageUrl}" alt="Обложка книги" class="book-cover">
+        <div class="book-info">
+          <h3 th:text="${book.name}"></h3>
+          <p class="author" th:text="${book.author.username}"></p>
+          <a th:href="@{/book(id=${book.id})}" class="btn btn-details">Подробнее</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Секция последних рецензий -->
+  <section class="recent-reviews">
+    <h2>Последние рецензии</h2>
+    <div class="reviews-container">
+      <div class="review-card" th:each="review : ${recentReviews}">
+        <div class="review-header">
+          <div class="user-info">
+            <h4 th:text="${review.user.username}"></h4>
+            <p class="review-date" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}"></p>
+          </div>
+        </div>
+        <div class="review-content">
+          <h3 th:text="${review.book.name}"></h3>
+          <p th:text="${#strings.abbreviate(review.text, 200)}"></p>
+        </div>
+        <a th:href="@{/review(id=${review.id})}" class="btn btn-read-more">Читать полностью</a>
+      </div>
+    </div>
+  </section>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-section about">
+      <h3>О Booklover</h3>
+      <p>Сообщество любителей книг, где вы можете делиться своими впечатлениями, находить новые произведения и общаться с единомышленниками.</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2025 Booklover. Все права защищены.
+  </div>
+</footer>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Элементы управления
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const booksContainer = document.getElementById('books-container');
+    const currentPosition = document.getElementById('current-position');
+    const totalBooks = parseInt(document.getElementById('total-books').textContent);
+
+    // Переменные состояния
+    let currentIndex = 0;
+    let visibleBooks = 0;
+
+    // Функция для расчета количества видимых книг
+    function calculateVisibleBooks() {
+      const containerWidth = booksContainer.clientWidth;
+      const bookCard = document.querySelector('.book-card');
+
+      if (!bookCard) return 0;
+
+      const bookWidth = bookCard.offsetWidth + 20; // ширина карточки + gap
+      return Math.floor(containerWidth / bookWidth);
+    }
+
+    // Функция обновления состояния кнопок
+    function updateNavigation() {
+      // Обновляем видимые книги
+      visibleBooks = calculateVisibleBooks();
+
+      // Обновляем позицию
+      currentPosition.textContent = currentIndex + visibleBooks;
+
+      // Обновляем состояние кнопок
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex + visibleBooks >= totalBooks;
+    }
+
+    // Функция прокрутки
+    function scrollBooks(direction) {
+      const bookCard = document.querySelector('.book-card');
+      if (!bookCard) return;
+
+      const bookWidth = bookCard.offsetWidth + 20; // ширина карточки + gap
+
+      if (direction === 'next') {
+        if (currentIndex + visibleBooks < totalBooks) {
+          currentIndex += visibleBooks;
+          booksContainer.scrollBy({
+            left: bookWidth * visibleBooks,
+            behavior: 'smooth'
+          });
+        }
+      } else if (direction === 'prev') {
+        if (currentIndex > 0) {
+          currentIndex = Math.max(0, currentIndex - visibleBooks);
+          booksContainer.scrollBy({
+            left: -bookWidth * visibleBooks,
+            behavior: 'smooth'
+          });
+        }
+      }
+
+      // Обновляем состояние после прокрутки
+      setTimeout(updateNavigation, 300);
+    }
+
+    // Обработчики кнопок
+    prevBtn.addEventListener('click', () => scrollBooks('prev'));
+    nextBtn.addEventListener('click', () => scrollBooks('next'));
+
+    // Обработчик изменения размера окна
+    window.addEventListener('resize', updateNavigation);
+
+    // Инициализация при загрузке
+    updateNavigation();
+
+    // Обработчик ручной прокрутки
+    booksContainer.addEventListener('scroll', function() {
+      const scrollPosition = booksContainer.scrollLeft;
+      const bookCard = document.querySelector('.book-card');
+
+      if (bookCard) {
+        const bookWidth = bookCard.offsetWidth + 20;
+        currentIndex = Math.round(scrollPosition / bookWidth);
+        updateNavigation();
+      }
+    });
+
+    // Переключение между секциями (рецензии)
+    const reviewCards = document.querySelectorAll('.review-card');
+    reviewCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-read-more')) {
+                this.querySelector('.btn-read-more').click();
+            }
+        });
+    });
+});
+</script>
+</main>
+</body>
+</html>

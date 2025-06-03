@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Entity(name = "password_history")
+@Entity
 @NoArgsConstructor
 public class PasswordHistory {
 
@@ -20,9 +19,8 @@ public class PasswordHistory {
     private UUID id;
 
     @ManyToOne
-    @MapsId
-    @JoinColumn(name = "id")
-    private UUID userId;
+    @JoinColumn(name = "userId")
+    private User userId;
 
     @Column(nullable = false)
     private String passwordHash;

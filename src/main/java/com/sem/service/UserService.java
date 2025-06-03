@@ -27,7 +27,7 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        passwordHistoryService.savePasswordHistory(savedUser.getId(), user.getPassword(), Instant.now());
+        passwordHistoryService.savePasswordHistory(savedUser, user.getPassword(), Instant.now());
 
         return savedUser;
     }
@@ -50,7 +50,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        passwordHistoryService.savePasswordHistory(userId, user.getPassword(), Instant.now());
+        passwordHistoryService.savePasswordHistory(user, user.getPassword(), Instant.now());
     }
 
     private void validatePassword(String password) {

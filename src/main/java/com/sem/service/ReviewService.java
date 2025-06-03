@@ -25,6 +25,11 @@ public class ReviewService {
     private final AuthorizationService authorizationService;
 
     @Transactional
+    public List<Review> findNewestReviews(int quantity, int offset){
+        return reviewRepository.findNewestReviews(quantity, offset);
+    }
+
+    @Transactional
     public Review createReview(UUID userId, String reviewText) {
         UserProfile user = userProfileRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

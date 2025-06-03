@@ -28,6 +28,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COUNT(c) FROM Review r JOIN r.comments c WHERE r.id = :reviewId")
     int countCommentsByReviewId(@Param("reviewId") Long reviewId);
 
+    @Query()
+    List<Review> findNewestReviews(@Param("limit") int limit, @Param("offset") int offset);
+
     boolean existsByUserId(UUID userId);
 
     void deleteByUserId(UUID userId);

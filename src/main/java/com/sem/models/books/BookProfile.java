@@ -17,6 +17,9 @@ public class BookProfile {
     @Column
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private Genre genre;
+
     @Column
     private String name;
 
@@ -30,12 +33,11 @@ public class BookProfile {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column
     @OneToOne(
             mappedBy = "book",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             optional = false
     )
-    private BookDescription bookDescriptionId;
+    private BookDescription bookDescription;
 }

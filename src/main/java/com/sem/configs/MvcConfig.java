@@ -1,5 +1,7 @@
 package com.sem.configs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -15,9 +17,12 @@ import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 @Configuration
 @EnableWebMvc
 public class MvcConfig implements WebMvcConfigurer {
+    private static final Logger logger = LoggerFactory.getLogger(MvcConfig.class);
 
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
+
+        logger.info("resolver conf");
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");
@@ -29,15 +34,19 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Bean
     public SpringTemplateEngine templateEngine() {
+
+        logger.info("engine conf");
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.setEnableSpringELCompiler(true);
-        templateEngine.addDialect(new LayoutDialect()); // Добавляем поддержку Layout Dialect
+        templateEngine.addDialect(new LayoutDialect());// Добавляем поддержку Layout Dialect
         return templateEngine;
     }
 
     @Bean
     public ThymeleafViewResolver viewResolver() {
+
+        logger.info("view conf");
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
         viewResolver.setCharacterEncoding("UTF-8");

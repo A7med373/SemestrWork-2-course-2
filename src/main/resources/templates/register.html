@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booklover - Регистрация</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+          background-color: #f8f9fa;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .register-container {
+          max-width: 500px;
+          margin: 40px auto;
+          padding: 30px;
+          background: white;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-header {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+
+        .register-logo {
+          font-size: 2.5rem;
+          color: #4a6fa5;
+          margin-bottom: 10px;
+        }
+
+        .form-control:focus {
+          border-color: #4a6fa5;
+          box-shadow: 0 0 0 0.25rem rgba(74, 111, 165, 0.25);
+        }
+
+        .password-toggle {
+          cursor: pointer;
+          position: absolute;
+          right: 15px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #6c757d;
+        }
+
+        .password-input-group {
+          position: relative;
+        }
+
+        .footer {
+          margin-top: auto;
+          padding: 20px 0;
+          background-color: #343a40;
+          color: white;
+        }
+    </style>
+</head>
+<body>
+<!-- Шапка сайта -->
+<header th:replace="fragments/header :: header"></header>
+
+<!-- Основной контент -->
+<main>
+    <div class="container">
+        <div class="register-container">
+            <div class="register-header">
+                <div class="register-logo">
+                    <i class="fas fa-book"></i> Booklover
+                </div>
+                <h2>Создайте новый аккаунт</h2>
+                <p class="text-muted">Присоединяйтесь к нашему сообществу любителей книг</p>
+            </div>
+
+            <!-- Форма регистрации -->
+            <form th:action="@{/register}" method="post" th:object="${userRegistrationDto}">
+                <!-- Ошибки формы -->
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+
+                <!-- Сообщения -->
+                <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                <!-- Имя пользователя -->
+                <div class="mb-3">
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                    <div class="form-text">От 3 до 20 символов (буквы, цифры, _)</div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                </div>
+
+                <!-- Пароль -->
+                <div class="mb-3">
+                    <label for="password" class="form-label">Пароль</label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" id="password" th:field="*{password}" required>
+                        <span class="password-toggle" onclick="togglePassword('password')">
+              <i class="fas fa-eye"></i>
+            </span>
+                    </div>
+                    <div class="form-text">Минимум 6 символов</div>
+                </div>
+
+                <!-- Подтверждение пароля -->
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
+                    <div class="password-input-group">
+                        <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" required>
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">
+              <i class="fas fa-eye"></i>
+            </span>
+                    </div>
+                </div>
+
+                <!-- Кнопка отправки -->
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg">Зарегистрироваться</button>
+                </div>
+
+                <!-- Ссылка на вход -->
+                <div class="text-center">
+                    <p>Уже есть аккаунт? <a th:href="@{/login}">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Подвал сайта -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>О Booklover</h5>
+                <p>Сообщество любителей книг, где вы можете делиться своими впечатлениями, находить новые произведения и общаться с единомышленниками.</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <p>&copy; 2025 Booklover. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Функция переключения видимости пароля
+    function togglePassword(fieldId) {
+      const passwordField = document.getElementById(fieldId);
+      const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordField.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
+    // Валидация паролей
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Пароли не совпадают!');
+      }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

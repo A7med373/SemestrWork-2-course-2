@@ -1,6 +1,7 @@
 package com.sem.repository;
 
 import com.sem.models.books.BookProfile;
+import com.sem.models.books.Genre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,7 @@ public interface BookRepository extends JpaRepository<BookProfile, Long> {
     List<BookProfile> findByDescription(@Param("desc") String description);
     @Query("Select b from bookProfile b where b.name like CONCAT('%', :name, '%')")
     List<BookProfile> findByName(@Param("name") String description);
+    List<BookProfile> findByGenre(Genre genre);
+    @Query("select b from bookProfile b order by b.year desc limit :limit offset :offset")
+    List<BookProfile> findNewest(@Param("limit") int limit, @Param("offset") int offset);
 }

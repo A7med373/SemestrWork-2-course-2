@@ -29,6 +29,11 @@ public class BookProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
     }
 
+    @Transactional(readOnly = true)
+    public List<BookProfile> findNewestBooks(int quantity, int offset){
+        return bookProfileRepository.findNewest(quantity, offset);
+    }
+
     @Transactional
     public BookProfile createBook(BookProfile book, UUID authorId) {
         if (!authorizationService.hasAccess(authorId, "AUTHOR")) {
@@ -52,7 +57,7 @@ public class BookProfileService {
             throw new AccessDeniedException("Only author or admin can update book");
         }
 
-        BookDescription bookDescription = book.getBookDescriptionId();
+        BookDescription bookDescription = book.getBookDescription();
         bookDescription.setDescription(description);
         bookDescriptionRepository.save(bookDescription);
         return book;

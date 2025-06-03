@@ -1,6 +1,8 @@
 package com.sem.service;
 
 import com.sem.models.user.PasswordHistory;
+import com.sem.models.user.User;
+import com.sem.models.user.UserProfile;
 import com.sem.repository.PasswordHistoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +20,9 @@ public class PasswordHistoryService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void savePasswordHistory(UUID userId, String passwordHash, Instant now) {
+    public void savePasswordHistory(User user, String passwordHash, Instant now) {
         PasswordHistory history = new PasswordHistory();
-        history.setUserId(userId);
+        history.setUserId(user);
         history.setPasswordHash(passwordHash);
         history.setCreatedAt(now);
         repository.save(history);
