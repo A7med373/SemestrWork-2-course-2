@@ -11,6 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface PasswordHistoryRepository extends JpaRepository<PasswordHistory, Long> {
-    @Query("Select p from passwordHistory p where userId = :userId")
+    @Query("Select p from PasswordHistory p where userId = :userId")
     List<PasswordHistory> findLastByUserIdOrderByCreatedAtDesc(@Param("userId") UUID userId);
 }

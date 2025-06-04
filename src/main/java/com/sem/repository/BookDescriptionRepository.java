@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BookDescriptionRepository extends JpaRepository<BookDescription, Long> {
-    @Query("select d from bookDescription d where d.description like CONCAT('%', :desc, '%')")
+    @Query("select d from BookDescription d where d.description like CONCAT('%', :desc, '%')")
     List<BookDescription> findByDescription(@Param("desc") String description);
-    @Query("select d from bookDescription d where d.id = :id")
+    @Query("select d from BookDescription d where d.id = :id")
     List<BookDescription> findDescriptionById(@Param("id") String description);
 }

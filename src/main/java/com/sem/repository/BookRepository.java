@@ -12,13 +12,12 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<BookProfile, Long> {
-    @Query("Select b from bookProfile b Where b.id = :id")
     Optional<BookProfile> findById(@Param("id") Long id);
-    @Query("select book from bookDescription d where d.description like CONCAT('%', :desc, '%')")
+    @Query("select book from BookDescription d where d.description like CONCAT('%', :desc, '%')")
     List<BookProfile> findByDescription(@Param("desc") String description);
-    @Query("Select b from bookProfile b where b.name like CONCAT('%', :name, '%')")
+    @Query("Select b from BookProfile b where b.name like CONCAT('%', :name, '%')")
     List<BookProfile> findByName(@Param("name") String description);
     List<BookProfile> findByGenre(Genre genre);
-    @Query("select b from bookProfile b order by b.year desc limit :limit offset :offset")
+    @Query("select b from BookProfile b order by b.year desc limit :limit offset :offset")
     List<BookProfile> findNewest(@Param("limit") int limit, @Param("offset") int offset);
 }

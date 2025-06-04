@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
-    private final SecretKey secret; // Замените на реальный ключ
-    private final long validityInMilliseconds; // 1 час
+    private final SecretKey secret;
+    private final long validityInMilliseconds;
     private final AuthorizationService authorisationService;
     @Autowired
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
@@ -36,7 +36,6 @@ public class JwtTokenProvider {
 
 
     public String createToken(Authentication auth, UserProfile user) {
-        // Используем существующий сервис для генерации
         return authorisationService.generateJwtToken(auth, user);
     }
 

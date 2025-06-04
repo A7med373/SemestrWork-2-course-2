@@ -23,7 +23,7 @@ public class AuthorizationService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration-ms}")
+    @Value("${jwt.expiration}")
     private long jwtExpirationMs;
 
     @Value("${jwt.issuer}")

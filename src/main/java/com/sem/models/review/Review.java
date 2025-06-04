@@ -13,7 +13,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "Review")
+@Entity
 @NoArgsConstructor
 @Getter
 @Setter
@@ -26,9 +26,8 @@ public class Review {
     @Lob
     private String review;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "id")
+    @ManyToOne
+    @JoinColumn(name = "userId")
     private UserProfile user;
 
     @OneToMany(

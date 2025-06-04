@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews with AJAX</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f9fc;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-top: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .review {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            margin-bottom: 10px;
+        }
+        .review:last-child {
+            border-bottom: none;
+        }
+        .author {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        .content {
+            color: #34495e;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .date {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .loader {
+            text-align: center;
+            display: none;
+            margin: 20px 0;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h1>Latest Reviews</h1>
+
+<div class="pagination">
+    <button id="prevBtn" disabled>Previous</button>
+    <span id="pageInfo">Page 1</span>
+    <button id="nextBtn">Next</button>
+</div>
+
+<div class="loader" id="loader">Loading reviews...</div>
+<div class="error" id="error"></div>
+
+<div class="container" id="reviewsContainer">
+    <!-- Reviews will be loaded here -->
+</div>
+
+<script>
+    // Configuration
+    const LIMIT = 5; // Reviews per page
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // DOM Elements
+    const reviewsContainer = document.getElementById('reviewsContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
+    const loader = document.getElementById('loader');
+    const errorDiv = document.getElementById('error');
+
+    // Fetch reviews from server
+    async function fetchReviews(page) {
+        try {
+            // Show loader and hide error
+            loader.style.display = 'block';
+            errorDiv.style.display = 'none';
+
+            const offset = (page - 1) * LIMIT;
+
+            // In a real app, replace with your actual endpoint
+            const response = await fetch(`/api/reviews?limit=${LIMIT}&offset=${offset}`);
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const reviews = await response.json();
+
+            // In real app, you would get total count from server
+            totalPages = Math.ceil(100 / LIMIT); // Example total
+
+            updatePagination();
+            displayReviews(reviews);
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            errorDiv.textContent = `Error: ${error.message}`;
+            errorDiv.style.display = 'block';
+            reviewsContainer.innerHTML = '';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Display reviews in the container
+    function displayReviews(reviews) {
+        if (reviews.length === 0) {
+            reviewsContainer.innerHTML = '<div class="review">No reviews found</div>';
+            return;
+        }
+
+        reviewsContainer.innerHTML = reviews.map(review => `
+            <div class="review">
+                <div class="author">${review.authorName}</div>
+                <div class="content">${review.content}</div>
+                <div class="date">${formatDate(review.createdAt)}</div>
+            </div>
+        `).join('');
+    }
+
+    // Update pagination controls
+    function updatePagination() {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Event listeners
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchReviews(currentPage);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            fetchReviews(currentPage);
+        }
+    });
+
+    // Initial load
+    fetchReviews(currentPage);
+</script>
+</body>
+</html>

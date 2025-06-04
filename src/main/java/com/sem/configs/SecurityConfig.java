@@ -1,5 +1,7 @@
 package com.sem.configs;
 
+import com.sem.service.CustomAuthenticationManager;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -14,9 +16,11 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(MvcConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+    private final CustomAuthenticationManager authenticationManger;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,10 +37,10 @@ public class SecurityConfig {
                         .requestMatchers("/", "/register", "/login", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                )
+                ).securityMatcher("/css/**", "/js/**", "/books/**", "/users", "/reviews/**")
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard")
+                        .defaultSuccessUrl("/")
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -45,7 +49,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
-                ).authenticationManager();
+                ).authenticationManager(authenticationManger);
         return http.build();
     }
 

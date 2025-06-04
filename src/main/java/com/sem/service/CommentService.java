@@ -73,6 +73,6 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<Comment> searchComments(String query) {
-        return commentRepository.findByCommentContainingIgnoreCase(query);
+        return commentRepository.findByComment(query);
     }
 }

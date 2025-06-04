@@ -16,7 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByAuthorId(UUID authorId);
 
-    List<Comment> findByCommentContainingIgnoreCase(String text);
+    List<Comment> findByComment(String text);
 
     @Query("SELECT c FROM Comment c JOIN FETCH c.author WHERE c.id = :id")
     Optional<Comment> findByIdWithAuthor(@Param("id") Long id);
@@ -24,5 +24,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c JOIN FETCH c.author WHERE c.review.id = :reviewId")
     List<Comment> findByReviewIdWithAuthor(@Param("reviewId") Long reviewId);
 
-    void deleteByAuthorId(Long authorId);
+    void deleteByAuthorId(UUID authorId);
 }
