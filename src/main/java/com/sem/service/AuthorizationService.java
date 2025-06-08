@@ -1,19 +1,18 @@
 package com.sem.service;
 
-import com.sem.configs.SecurityConfig;
 import com.sem.dto.AuthResponse;
 import com.sem.dto.UserRegDto;
 import com.sem.models.user.Role;
 import com.sem.models.user.User;
 import com.sem.models.user.UserProfile;
 import com.sem.repository.UserProfileRepository;
-import com.sem.repository.UserRepository;
 import jakarta.security.auth.message.AuthException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -47,7 +47,7 @@ public class AuthorizationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final UserProfileRepository userProfileRepository;
 
     public String generateToken(User user) {
@@ -99,46 +99,57 @@ public class AuthorizationService {
     }
 
     @Transactional
-    public AuthResponse register(UserRegDto request) throws AuthException {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new AuthException("Email уже зарегистрирован");
+    public AuthResponse register(UserRegDto request) {
+        if (userService.findByEmail(request.getEmail()).isPresent()) {
+            return new AuthResponse(false, "Пользователь с таким email уже существует", null);
         }
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        User savedUser = userRepository.save(user);
-        logger.info("User saved");
-        UserProfile profile = new UserProfile();
-        profile.setFirstName(request.getFirstName());
-        profile.setLastName(request.getLastName());
-        profile.setEmail(request.getEmail());
-        profile.setAccount(savedUser);
-        profile.setRole(Role.USER);
-        userProfileRepository.save(profile);
-        logger.info("user fully saved");
+        try {
+            User savedUser = userService.registerUser(request);
+            logger.info("User saved");
 
-        // Генерируем JWT токен
-        String token = generateToken(user);
-        return new AuthResponse(true, "Регистрация успешна", token);
+            UserProfile profile = new UserProfile();
+            profile.setFirstName(request.getFirstName());
+            profile.setLastName(request.getLastName());
+            profile.setEmail(request.getEmail());
+            profile.setAccount(savedUser);
+            profile.setRole(Role.USER);
+            userProfileRepository.save(profile);
+            logger.info("User profile saved");
+
+            String token = generateToken(savedUser);
+            return new AuthResponse(true, "Регистрация успешна", token);
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation failed", e);
+            return new AuthResponse(false, e.getMessage(), null);
+        } catch (Exception e) {
+            logger.error("Registration failed", e);
+            return new AuthResponse(false, "Ошибка регистрации. Попробуйте позже", null);
+        }
     }
 
     public AuthResponse authenticate(UserRegDto request) {
-        logger.info("try to auth");
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        logger.info("authenticate");
+        logger.info("Authentication attempt for email: {}", request.getEmail());
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        logger.info("set authenticate");
-        User user = (User) authentication.getPrincipal();
-        logger.info("token generate");
-        String token = generateToken(user);
-        logger.info("token generated");
-        return new AuthResponse(true, "Вход выполнен успешно", token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = (User) authentication.getPrincipal();
+            logger.info("User authenticated: {}", user.getEmail());
+
+            String token = generateToken(user);
+            return new AuthResponse(true, "Вход выполнен успешно", token);
+        } catch (BadCredentialsException e) {
+            logger.error("Authentication failed for email: {}", request.getEmail(), e);
+            return new AuthResponse(false, "Неверный email или пароль", null);
+        } catch (Exception e) {
+            logger.error("Unexpected authentication error", e);
+            return new AuthResponse(false, "Ошибка сервера при аутентификации", null);
+        }
     }
 }

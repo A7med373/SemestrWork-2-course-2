@@ -25,10 +25,9 @@ public class AuthController {
     @GetMapping("/register")
     public String registerPage() {
         return "register";
-    }
-    @ResponseBody
+    }@ResponseBody
     @PostMapping("/api/auth/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserRegDto request) throws AuthException {
+    public ResponseEntity<AuthResponse> register(@RequestBody UserRegDto request) {
         return ResponseEntity.ok(authService.register(request));
     }
     @ResponseBody

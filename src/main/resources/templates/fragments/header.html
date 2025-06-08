@@ -6,6 +6,33 @@
     <title>Booklover</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Стили для улучшения видимости кнопки выхода */
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+            color: #ff6b6b !important;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
 <header th:fragment="header">
@@ -24,11 +51,10 @@
         <div id="userSection" class="auth-section" style="display: none;">
             <div class="user-profile">
                 <img id="userAvatar" src="https://ui-avatars.com/api/?name=Back&Ground=random" alt="Аватар" class="user-avatar" onclick="window.location.href='/profile'">
-                <button id="logoutButton" class="btn btn-logout">
+                <button id="logoutButton" class="btn btn-logout" title="Выйти">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
-
         </div>
 
         <div id="guestSection" class="auth-section">
