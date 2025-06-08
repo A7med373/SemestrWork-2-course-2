@@ -24,19 +24,12 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final SecretKey secret;
     private final long validityInMilliseconds;
-    private final AuthorizationService authorisationService;
     @Autowired
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
                             @Value("${jwt.expiration}") long validity,
                             AuthorizationService authorisationService){
         this.secret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         validityInMilliseconds = validity;
-        this.authorisationService = authorisationService;
-    }
-
-
-    public String createToken(Authentication auth, UserProfile user) {
-        return authorisationService.generateJwtToken(auth, user);
     }
 
     public String resolveToken(HttpServletRequest req) {

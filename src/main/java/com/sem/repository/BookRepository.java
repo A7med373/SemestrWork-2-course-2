@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface BookRepository extends JpaRepository<BookProfile, Long> {
@@ -20,4 +21,10 @@ public interface BookRepository extends JpaRepository<BookProfile, Long> {
     List<BookProfile> findByGenre(Genre genre);
     @Query("select b from BookProfile b order by b.year desc limit :limit offset :offset")
     List<BookProfile> findNewest(@Param("limit") int limit, @Param("offset") int offset);
+    @Query("SELECT b FROM BookProfile b " +
+            "WHERE NOT EXISTS (" +
+            "  SELECT 1 FROM UserProfile u JOIN u.booksRead br " +
+            "  WHERE u.id = :id AND br.id = b.id" +
+            ")")
+    List<BookProfile> findByNotReadByUser(@Param("id") UUID id);
 }

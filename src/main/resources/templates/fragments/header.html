@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booklover</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<header th:fragment="header">
+    <div class="header-left">
+        <div class="logo">Booklover</div>
+        <nav>
+            <ul class="nav-buttons">
+                <li><a href="/">Главная</a></li>
+                <li><a href="/books">Книги</a></li>
+                <li><a href="/reviews">Рецензии</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="header-right">
+        <div id="userSection" class="auth-section" style="display: none;">
+            <div class="user-profile">
+                <img id="userAvatar" src="https://ui-avatars.com/api/?name=Back&Ground=random" alt="Аватар" class="user-avatar" onclick="window.location.href='/profile'">
+                <button id="logoutButton" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <div id="guestSection" class="auth-section">
+            <div class="auth-buttons">
+                <a href="/login" class="btn btn-login">Войти</a>
+                <a href="/register" class="btn btn-register">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('jwtToken');
+            const guestSection = document.getElementById('guestSection');
+            const userSection = document.getElementById('userSection');
+            const logoutButton = document.getElementById('logoutButton');
+
+            if (token) {
+                guestSection.style.display = 'none';
+                userSection.style.display = 'block';
+
+                // Обработчик для кнопки выхода
+                logoutButton.addEventListener('click', function() {
+                    localStorage.removeItem('jwtToken');
+                    window.location.href = '/';
+                });
+            } else {
+                guestSection.style.display = 'block';
+                userSection.style.display = 'none';
+            }
+        });
+    </script>
+</header>
+</body>
+</html>

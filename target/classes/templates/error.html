@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ошибка - Booklover</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #e74c3c;
+            margin-bottom: 1.5rem;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .error-actions {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-error {
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: #2980b9;
+        }
+
+        .btn-support {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-support:hover {
+            background: #edf2f7;
+        }
+
+        /* Обновленные стили для списка */
+        .suggestions {
+            list-style-position: inside; /* Точки внутри блока списка */
+            padding-left: 0; /* Убираем стандартный отступ */
+            text-align: left; /* Выравнивание по левому краю */
+            display: inline-block; /* Чтобы список центрировался */
+            max-width: 500px; /* Ограничиваем ширину */
+            margin: 0 auto; /* Центрируем список */
+        }
+
+        .suggestions li {
+            margin-bottom: 0.5rem; /* Отступ между пунктами */
+            padding-left: 1em; /* Отступ для текста */
+            text-indent: -1em; /* Выносим маркер за пределы текста */
+        }
+
+
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .error-title {
+                font-size: 1.7rem;
+            }
+
+            .suggestions {
+                padding-left: 1rem; /* Добавляем отступ на мобильных */
+            }
+        }
+    </style>
+</head>
+<body class="page-container">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+
+        <h1 class="error-title">Произошла ошибка</h1>
+
+        <div class="error-message">
+                <span th:text="${exceptionMessage} ?: 'Не удалось обработать ваш запрос'">
+                    Сообщение об ошибке
+                </span>
+        </div>
+
+        <p>Пожалуйста, попробуйте выполнить одно из следующих действий:</p>
+
+        <!-- Обновленный список с правильным расположением точек -->
+        <ul class="suggestions">
+            <li>Повторить действие через несколько минут</li>
+            <li>Проверить введенные данные</li>
+            <li>Вернуться на главную страницу</li>
+        </ul>
+
+        <div class="error-actions">
+            <a th:href="@{/}" class="btn-error btn-home">
+                <i class="fas fa-home"></i> На главную
+            </a>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

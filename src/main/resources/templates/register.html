@@ -4,185 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booklover - Регистрация</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-          background-color: #f8f9fa;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .register-container {
-          max-width: 500px;
-          margin: 40px auto;
-          padding: 30px;
-          background: white;
-          border-radius: 10px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .register-header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-
-        .register-logo {
-          font-size: 2.5rem;
-          color: #4a6fa5;
-          margin-bottom: 10px;
-        }
-
-        .form-control:focus {
-          border-color: #4a6fa5;
-          box-shadow: 0 0 0 0.25rem rgba(74, 111, 165, 0.25);
-        }
-
-        .password-toggle {
-          cursor: pointer;
-          position: absolute;
-          right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #6c757d;
-        }
-
-        .password-input-group {
-          position: relative;
-        }
-
-        .footer {
-          margin-top: auto;
-          padding: 20px 0;
-          background-color: #343a40;
-          color: white;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-<!-- Шапка сайта -->
-<header th:replace="fragments/header :: header"></header>
+<body class="page-container">
+<!-- Шапка из фрагмента -->
+<div th:replace="~{fragments/header :: header}"></div>
 
-<!-- Основной контент -->
 <main>
-    <div class="container">
-        <div class="register-container">
-            <div class="register-header">
-                <div class="register-logo">
-                    <i class="fas fa-book"></i> Booklover
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2><i class="fas fa-user-plus"></i> Создание аккаунта</h2>
+            <p>Заполните форму для регистрации нового аккаунта</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName"><i class="fas fa-user"></i> Имя</label>
+                    <input type="text" id="firstName" name="firstName" required placeholder="Ваше имя">
                 </div>
-                <h2>Создайте новый аккаунт</h2>
-                <p class="text-muted">Присоединяйтесь к нашему сообществу любителей книг</p>
+                <div class="form-group">
+                    <label for="lastName"><i class="fas fa-user"></i> Фамилия</label>
+                    <input type="text" id="lastName" name="lastName" required placeholder="Ваша фамилия">
+                </div>
             </div>
 
-            <!-- Форма регистрации -->
-            <form th:action="@{/register}" method="post" th:object="${userRegistrationDto}">
-                <!-- Ошибки формы -->
-                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-                    <ul>
-                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-                    </ul>
-                </div>
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" id="email" name="email" required placeholder="Ваш email">
+            </div>
 
-                <!-- Сообщения -->
-                <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
-                <!-- Имя пользователя -->
-                <div class="mb-3">
-                    <label for="username" class="form-label">Имя пользователя</label>
-                    <input type="text" class="form-control" id="username" th:field="*{username}" required>
-                    <div class="form-text">От 3 до 20 символов (буквы, цифры, _)</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+                    <input type="password" id="password" name="password" required placeholder="Придумайте пароль">
                 </div>
-
-                <!-- Email -->
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                <div class="form-group">
+                    <label for="confirmPassword"><i class="fas fa-lock"></i> Подтвердите пароль</label>
+                    <input type="password" id="confirmPassword" required placeholder="Повторите пароль">
                 </div>
+            </div>
 
-                <!-- Пароль -->
-                <div class="mb-3">
-                    <label for="password" class="form-label">Пароль</label>
-                    <div class="password-input-group">
-                        <input type="password" class="form-control" id="password" th:field="*{password}" required>
-                        <span class="password-toggle" onclick="togglePassword('password')">
-              <i class="fas fa-eye"></i>
-            </span>
-                    </div>
-                    <div class="form-text">Минимум 6 символов</div>
-                </div>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
 
-                <!-- Подтверждение пароля -->
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Подтвердите пароль</label>
-                    <div class="password-input-group">
-                        <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" required>
-                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">
-              <i class="fas fa-eye"></i>
-            </span>
-                    </div>
-                </div>
-
-                <!-- Кнопка отправки -->
-                <div class="d-grid gap-2 mb-3">
-                    <button type="submit" class="btn btn-primary btn-lg">Зарегистрироваться</button>
-                </div>
-
-                <!-- Ссылка на вход -->
-                <div class="text-center">
-                    <p>Уже есть аккаунт? <a th:href="@{/login}">Войти</a></p>
-                </div>
-            </form>
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
         </div>
+
+        <div id="registerMessage" class="message"></div>
     </div>
 </main>
 
-<!-- Подвал сайта -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h5>О Booklover</h5>
-                <p>Сообщество любителей книг, где вы можете делиться своими впечатлениями, находить новые произведения и общаться с единомышленниками.</p>
-            </div>
-            <div class="col-md-6 text-end">
-                <p>&copy; 2025 Booklover. Все права защищены.</p>
-            </div>
-        </div>
-    </div>
-</footer>
+<!-- Подвал из фрагмента -->
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-    // Функция переключения видимости пароля
-    function togglePassword(fieldId) {
-      const passwordField = document.getElementById(fieldId);
-      const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Проверяем наличие токена
+        const token = localStorage.getItem('jwtToken');
 
-      if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordField.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
-      }
-    }
+        // Если токен есть - перенаправляем на главную
+        if (token) {
+            window.location.href = '/';
+        }
 
-    // Валидация паролей
-    document.querySelector('form').addEventListener('submit', function(e) {
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+        // Обработка формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-      if (password !== confirmPassword) {
-        e.preventDefault();
-        alert('Пароли не совпадают!');
-      }
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageElement = document.getElementById('registerMessage');
+
+            // Проверка совпадения паролей
+            if (password !== confirmPassword) {
+                messageElement.textContent = 'Пароли не совпадают';
+                messageElement.className = 'message error';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ firstName, lastName, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Сохраняем токен в localStorage
+                    localStorage.setItem('jwtToken', data.token);
+
+                    // Показываем сообщение об успехе
+                    messageElement.textContent = 'Регистрация успешна! Перенаправление...';
+                    messageElement.className = 'message success';
+
+                    // Перенаправление на главную
+                    setTimeout(() => window.location.href = '/', 2000);
+                } else {
+                    messageElement.textContent = data.message || 'Ошибка регистрации';
+                    messageElement.className = 'message error';
+                }
+            } catch (error) {
+                messageElement.textContent = 'Ошибка сети';
+                messageElement.className = 'message error';
+            }
+        });
     });
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

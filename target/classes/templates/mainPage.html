@@ -9,35 +9,7 @@
 </head>
 <body>
 <!-- Шапка сайта с кнопками входа/регистрации -->
-<header>
-  <div class="header-left">
-    <div class="logo">Booklover</div>
-    <nav>
-      <ul class="nav-buttons">
-        <li><a href="/">Главная</a></li>
-        <li><a href="/books">Книги</a></li>
-        <li><a href="/reviews">Рецензии</a></li>
-      </ul>
-    </nav>
-  </div>
-
-  <div class="header-right">
-    <!-- Условное отображение для авторизованных/неавторизованных -->
-    <div class="auth-section" th:if="${user}">
-      <div class="user-profile">
-        <img th:src="${user.avatarUrl}" alt="Аватар" class="user-avatar"
-             th:onclick="|window.location.href='/profile'|">
-      </div>
-    </div>
-
-    <div class="auth-section" th:unless="${user}">
-      <div class="auth-buttons">
-        <a href="/login" class="btn btn-login">Войти</a>
-        <a href="/register" class="btn btn-register">Зарегистрироваться</a>
-      </div>
-    </div>
-  </div>
-</header>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <!-- Основной контент -->
 <main>
@@ -76,17 +48,6 @@
     </div>
   </section>
 
-<footer>
-  <div class="footer-content">
-    <div class="footer-section about">
-      <h3>О Booklover</h3>
-      <p>Сообщество любителей книг, где вы можете делиться своими впечатлениями, находить новые произведения и общаться с единомышленниками.</p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    &copy; 2025 Booklover. Все права защищены.
-  </div>
-</footer>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     // Элементы управления
@@ -187,5 +148,6 @@
 });
 </script>
 </main>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -1,69 +1,49 @@
 package com.sem.controllers;
 
-import com.sem.service.CustomAuthenticationManager;
-import com.sem.dto.JwtResponse;
+import com.sem.dto.AuthResponse;
 import com.sem.dto.UserRegDto;
-import com.sem.jwt.JwtTokenProvider;
-import com.sem.models.user.User;
-import com.sem.service.UserProfileService;
+import com.sem.service.AuthorizationService;
+import jakarta.security.auth.message.AuthException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final CustomAuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserProfileService userProfileService;
+    private final AuthorizationService authService;
 
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody UserRegDto userRegDto) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        userRegDto.getEmail(),
-                        userRegDto.getPassword()
-                )
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User userDetails = (User) authentication.getPrincipal();
-
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        String jwt = jwtTokenProvider.createToken(authentication, userProfileService.getUserProfileByEmail(userRegDto.getEmail()).orElseThrow());
-        return ResponseEntity.ok(new JwtResponse(
-                jwt,
-                userDetails.getId(),
-                userDetails.getEmail(),
-                roles
-        ));
-    }
-
     @GetMapping("/register")
-    public String registerPage(Model model) {
-        model.addAttribute("user", new UserRegDto()); // Пустой DTO для формы
-        return "register"; // Возвращает register.html (Thymeleaf/Freemarker)
+    public String registerPage() {
+        return "register";
+    }
+    @ResponseBody
+    @PostMapping("/api/auth/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody UserRegDto request) throws AuthException {
+        return ResponseEntity.ok(authService.register(request));
+    }
+    @ResponseBody
+    @PostMapping("/api/auth/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody UserRegDto  request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+    @GetMapping("/api/auth/logout")
+    public String logout(HttpServletResponse response) {
+        Cookie jwtCookie = new Cookie("jwtToken", null);
+        jwtCookie.setPath("/");
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setMaxAge(0);
+        response.addCookie(jwtCookie);
+
+        return "redirect:/";
     }
 }

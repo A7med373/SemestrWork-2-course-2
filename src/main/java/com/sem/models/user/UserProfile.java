@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Set;
 import java.util.UUID;
@@ -15,7 +17,6 @@ import java.util.UUID;
 @Setter
 public class UserProfile {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -56,5 +57,5 @@ public class UserProfile {
     private String description;
 
     @Column(name = "avatar_url")
-    private String avatarUrl = "https://ui-avatars.com/api/?name=Back&Ground=random ";
+    private String avatarUrl = "https://ui-avatars.com/api/?name=Back&Ground=random";
 }
