@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booklover - [[${userProfile.firstName}]] [[${userProfile.lastName}]]</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .add-book-btn {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="user-profile-container">
+    <div class="profile-header">
+        <img th:src="${userProfile.avatarUrl}" alt="Аватар пользователя" class="avatar-large">
+        <div class="user-info">
+            <h1 th:text="${userProfile.firstName + ' ' + userProfile.lastName}"></h1>
+            <p class="user-role" th:text="${userProfile.role?.displayName}"></p>
+            <p class="user-description" th:text="${userProfile.description}"></p>
+
+            <!-- Кнопка редактирования профиля (для владельца) -->
+            <div th:if="${isOwner}">
+                <a th:href="@{/user/{id}/edit(id=${userProfile.id})}" class="btn btn-edit">
+                    Редактировать профиль
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция "Написанные книги" с кнопкой добавления -->
+    <div class="section" th:if="${userProfile.role.name() == 'AUTHOR'}">
+        <div class="section-header">
+            <h2>Написанные книги</h2>
+            <a th:href="@{/books/new}" class="add-book-btn" th:if="${isOwner}">
+                <i class="fas fa-plus"></i> Добавить книгу
+            </a>
+        </div>
+
+        <div class="books-container">
+            <div class="book-card" th:each="book : ${authoredBooks}">
+                <img th:src="${book.imageUrl}" alt="Обложка книги" class="book-cover">
+                <div class="book-info">
+                    <h3 th:text="${book.name}"></h3>
+                    <p class="book-meta" th:text="${book.genre.displayName + ' • ' + #temporals.format(book.year, 'yyyy')}"></p>
+                    <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-details">Подробнее</a>
+                </div>
+            </div>
+
+            <div th:if="${authoredBooks.isEmpty()}" class="empty-section">
+                <p>Пока нет написанных книг</p>
+                <a th:href="@{/books/new}" class="btn" th:if="${isOwner}">Добавить первую книгу</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция "Прочитанные книги" -->
+    <div class="section">
+        <h2>Прочитанные книги</h2>
+        <div class="books-container">
+            <div class="book-card" th:each="book : ${readBooks}">
+                <img th:src="${book.imageUrl}" alt="Обложка книги" class="book-cover">
+                <div class="book-info">
+                    <h3 th:text="${book.name}"></h3>
+                    <p class="author" th:text="${book.author.firstName + ' ' + book.author.lastName}"></p>
+                    <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-details">Подробнее</a>
+                </div>
+            </div>
+
+            <div th:if="${readBooks.isEmpty()}" class="empty-section">
+                <p>Пока нет прочитанных книг</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

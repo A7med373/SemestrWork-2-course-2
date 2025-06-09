@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booklover - [[${book.name}]]</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="book-profile-container">
+    <div class="book-header">
+        <img th:src="${book.imageUrl}" alt="Обложка книги" class="book-cover-large">
+        <div class="book-info">
+            <h1 th:text="${book.name}"></h1>
+            <p class="book-meta">
+                <span th:text="${book.genre}"></span> •
+                <span th:text="${#temporals.format(book.year, 'yyyy')}"></span>
+            </p>
+            <p class="author">
+                Автор:
+                <a th:href="@{/user/{id}(id=${book.author.id})}"
+                   th:text="${book.author.firstName + ' ' + book.author.lastName}"></a>
+            </p>
+
+            <div th:if="${#authentication.principal.id == book.author.id}">
+                <a th:href="@{/books/{id}/edit(id=${book.id})}"
+                   class="btn btn-edit">
+                    Редактировать
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="book-description">
+        <h2>Описание</h2>
+        <p th:text="${book.bookDescription.description}"></p>
+    </div>
+
+    <div class="book-reviews">
+        <h2>Рецензии</h2>
+        <div class="reviews-list">
+            <!-- Здесь будут рецензии -->
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

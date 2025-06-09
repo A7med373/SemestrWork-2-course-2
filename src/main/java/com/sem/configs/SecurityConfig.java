@@ -37,10 +37,10 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/register", "/login", "/css/**", "/js/**", "/books/**", "/profile/**", "/reviews/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                ).securityMatcher("/css/**", "/js/**", "/books/**", "/users", "/reviews/**")
+                ).securityMatcher("/css/**", "/js/**")
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/")

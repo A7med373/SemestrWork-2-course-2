@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -151,5 +152,9 @@ public class AuthorizationService {
             logger.error("Unexpected authentication error", e);
             return new AuthResponse(false, "Ошибка сервера при аутентификации", null);
         }
+    }
+    public UUID getCurrentUserId(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return (user.getId());
     }
 }

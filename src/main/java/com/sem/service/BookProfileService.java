@@ -64,6 +64,31 @@ public class BookProfileService {
     }
 
     @Transactional
+    public BookProfile updateBookProfile(Long bookId, BookProfile updatedBook, UUID currentUserId) {
+        BookProfile existingBook = getBookById(bookId);
+
+        // Проверка прав доступа
+        if (!existingBook.getAuthor().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("Only author can update book profile");
+        }
+
+        // Обновление полей книги
+        existingBook.setName(updatedBook.getName());
+        existingBook.setGenre(updatedBook.getGenre());
+        existingBook.setYear(updatedBook.getYear());
+        existingBook.setImageUrl(updatedBook.getImageUrl());
+
+        // Обновление описания
+        if (updatedBook.getBookDescription() != null) {
+            BookDescription description = existingBook.getBookDescription();
+            description.setDescription(updatedBook.getBookDescription().getDescription());
+            bookDescriptionRepository.save(description);
+        }
+
+        return bookProfileRepository.save(existingBook);
+    }
+
+    @Transactional
     public void deleteBook(Long bookId) {
         BookProfile book = getBookById(bookId);
 

@@ -7,8 +7,14 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Стили для улучшения видимости кнопки выхода */
-        .btn-logout {
+        /* Стили для улучшения видимости кнопок */
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-btn {
             background-color: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             width: 36px;
@@ -19,11 +25,20 @@
             transition: all 0.3s;
             color: white !important;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .search-icon:hover {
+            color: #4CAF50 !important;
         }
 
         .btn-logout:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
             color: #ff6b6b !important;
         }
 
@@ -31,6 +46,21 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            border-color: #4CAF50;
         }
     </style>
 </head>
@@ -49,11 +79,23 @@
 
     <div class="header-right">
         <div id="userSection" class="auth-section" style="display: none;">
-            <div class="user-profile">
-                <img id="userAvatar" src="https://ui-avatars.com/api/?name=Back&Ground=random" alt="Аватар" class="user-avatar" onclick="window.location.href='/profile'">
-                <button id="logoutButton" class="btn btn-logout" title="Выйти">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+            <div class="header-icons">
+                <div class="user-profile">
+                    <!-- Значок лупы для поиска (перемещен сюда) -->
+                    <a href="/search" class="icon-btn search-icon" title="Поиск">
+                        <i class="fas fa-search"></i>
+                    </a>
+
+                    <!-- Аватар с ссылкой на профиль -->
+                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Back&Ground=random"
+                         alt="Аватар" class="user-avatar"
+                         onclick="goToProfile()">
+
+                    <!-- Кнопка выхода -->
+                    <button id="logoutButton" class="icon-btn btn-logout" title="Выйти">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -68,17 +110,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('jwtToken');
+            const userId = localStorage.getItem('userId');
+            const avatarUrl = localStorage.getItem('avatarUrl');
+
             const guestSection = document.getElementById('guestSection');
             const userSection = document.getElementById('userSection');
             const logoutButton = document.getElementById('logoutButton');
+            const userAvatar = document.getElementById('userAvatar');
 
             if (token) {
                 guestSection.style.display = 'none';
-                userSection.style.display = 'block';
+                userSection.style.display = 'flex';
+
+                // Обновляем аватар, если есть в localStorage
+                if (avatarUrl) {
+                    userAvatar.src = avatarUrl;
+                }
 
                 // Обработчик для кнопки выхода
                 logoutButton.addEventListener('click', function() {
                     localStorage.removeItem('jwtToken');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('avatarUrl');
                     window.location.href = '/';
                 });
             } else {
@@ -86,6 +139,13 @@
                 userSection.style.display = 'none';
             }
         });
+
+        function goToProfile() {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = '/user/' + userId;
+            }
+        }
     </script>
 </header>
 </body>

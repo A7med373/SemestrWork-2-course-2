@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование - [[${book.name}]]</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="edit-book-container">
+    <h1>Редактирование книги</h1>
+
+    <form th:action="@{/books/{id}/edit(id=${book.id})}"
+          th:object="${book}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label for="name">Название книги</label>
+            <input type="text" id="name" th:field="*{name}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="genre">Жанр</label>
+            <select id="genre" th:field="*{genre}">
+                <option th:each="genre : ${T(com.sem.models.books.Genre).values()}"
+                        th:value="${genre}"
+                        th:text="${genre.displayName}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="year">Год издания</label>
+            <input type="number" id="year" th:field="*{year}" min="1800" max="2025">
+        </div>
+
+        <div class="form-group">
+            <label for="imageUrl">Обложка книги</label>
+            <input type="text" id="imageUrl" th:field="*{imageUrl}" placeholder="URL обложки">
+            <small>Или загрузите новую:</small>
+            <input type="file" id="coverFile" name="coverFile" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" th:field="*{bookDescription.description}" rows="6"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-save">Сохранить изменения</button>
+        <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-cancel">Отмена</a>
+    </form>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
