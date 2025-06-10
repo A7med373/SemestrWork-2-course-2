@@ -14,9 +14,11 @@ public class UserRegDto {
     @NotBlank
     @Size(min=2, max=100)
     private String firstName;
+
     @NotBlank
     @Size(min=2, max=100)
     private String lastName;
+
     @NotBlank
     @Size(min = 12, max = 100)
     private String password;

@@ -91,10 +91,6 @@ public class AuthorizationService {
         return false;
     }
 
-    private Collection<? extends GrantedAuthority> getRoles(Authentication authentication) {
-        return authentication.getAuthorities();
-    }
-
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
@@ -138,7 +134,7 @@ public class AuthorizationService {
                             request.getPassword()
                     )
             );
-
+            SecurityContextHolder.clearContext();
             SecurityContextHolder.getContext().setAuthentication(authentication);
             User user = (User) authentication.getPrincipal();
             logger.info("User authenticated: {}", user.getEmail());

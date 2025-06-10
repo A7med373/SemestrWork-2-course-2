@@ -36,12 +36,6 @@
             <p class="user-role" th:text="${userProfile.role?.displayName}"></p>
             <p class="user-description" th:text="${userProfile.description}"></p>
 
-            <!-- Кнопка редактирования профиля (для владельца) -->
-            <div th:if="${isOwner}">
-                <a th:href="@{/user/{id}/edit(id=${userProfile.id})}" class="btn btn-edit">
-                    Редактировать профиль
-                </a>
-            </div>
         </div>
     </div>
 

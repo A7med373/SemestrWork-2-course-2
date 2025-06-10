@@ -25,16 +25,20 @@ public class AuthController {
     @GetMapping("/register")
     public String registerPage() {
         return "register";
-    }@ResponseBody
+    }
+
+    @ResponseBody
     @PostMapping("/api/auth/register")
     public ResponseEntity<AuthResponse> register(@RequestBody UserRegDto request) {
         return ResponseEntity.ok(authService.register(request));
     }
+
     @ResponseBody
     @PostMapping("/api/auth/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserRegDto  request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody UserRegDto request) {
         return ResponseEntity.ok(authService.authenticate(request));
     }
+
     @GetMapping("/api/auth/logout")
     public String logout(HttpServletResponse response) {
         Cookie jwtCookie = new Cookie("jwtToken", null);

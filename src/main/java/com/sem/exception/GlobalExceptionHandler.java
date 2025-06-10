@@ -22,7 +22,6 @@ public class GlobalExceptionHandler {
 
         // Безопасная передача данных
         mav.addObject("exceptionMessage", ex.getMessage());
-        mav.addObject("errorType", ex.getClass().getSimpleName());
 
         mav.setViewName("error");
         return mav;

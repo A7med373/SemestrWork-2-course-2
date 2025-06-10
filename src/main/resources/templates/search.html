@@ -143,7 +143,7 @@
                 <img th:src="${author.avatarUrl}" alt="Аватар" class="author-avatar">
                 <div class="author-info">
                     <h3 th:text="${author.firstName + ' ' + author.lastName}"></h3>
-                    <a th:href="@{/user/{id}(id=${author.id})}" class="btn btn-profile">Профиль</a>
+                    <a th:href="@{/profile/{id}(id=${author.id})}" class="btn btn-profile">Профиль</a>
                 </div>
             </div>
         </div>
