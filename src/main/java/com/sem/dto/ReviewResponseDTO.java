@@ -21,6 +21,5 @@ public class ReviewResponseDTO {
     private UUID user;
     private String text;
     private Date createdAt;
-    private List<CommentResponseDTO> comments;
 
 }

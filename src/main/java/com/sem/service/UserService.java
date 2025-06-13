@@ -20,7 +20,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final PasswordHistoryService passwordHistoryService;
 
     @Transactional
     public User registerUser(UserRegDto userDto) {
@@ -31,7 +30,6 @@ public class UserService {
         user.setRole(Role.USER);
         User savedUser = userRepository.save(user);
 
-        passwordHistoryService.savePasswordHistory(savedUser, user.getPassword(), Instant.now());
 
         return savedUser;
     }
@@ -46,14 +44,9 @@ public class UserService {
         }
 
 
-        if (passwordHistoryService.isPasswordUsed(userId, newPassword)) {
-            throw new SecurityException("Password was used recently");
-        }
-
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        passwordHistoryService.savePasswordHistory(user, user.getPassword(), Instant.now());
     }
 
     public Optional<User> findByEmail(String email){

@@ -12,8 +12,7 @@ public class ReviewMapper {
                 id(review.getId()).
                 user(review.getUser().getId()).
                 text(review.getText()).
-                createdAt(review.getCreatedAt()).
-                comments(review.getComments().stream().map(CommentMapper::toDto).collect(Collectors.toList()))
+                createdAt(review.getCreatedAt())
                 .build();
     }
 }

@@ -99,8 +99,7 @@
         <button class="category-btn" data-category="book" th:classappend="${category == 'book'} ? 'active' : ''">Книги</button>
         <button class="category-btn" data-category="author" th:classappend="${category == 'author'} ? 'active' : ''">Авторы</button>
         <button class="category-btn" data-category="review" th:classappend="${category == 'review'} ? 'active' : ''">Рецензии</button>
-        <button class="category-btn" data-category="comment" th:classappend="${category == 'comment'} ? 'active' : ''">Комментарии</button>
-    </div>
+            </div>
 
     <!-- Книги -->
     <div class="results-section" id="books-section" th:classappend="${category == 'book'} ? 'active' : ''">
@@ -186,33 +185,7 @@
         </div>
     </div>
 
-    <!-- Комментарии -->
-    <div class="results-section" id="comments-section" th:classappend="${category == 'comment'} ? 'active' : ''">
-        <h2>Результаты поиска комментариев</h2>
-        <div class="results-container" id="comments-container">
-            <div class="card comment-card" th:each="comment : ${comments}">
-                <div class="comment-header">
-                    <div class="user-info">
-                        <h4 th:text="${comment.author.firstName + ' ' + comment.author.lastName}"></h4>
-                        <p class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy')}"></p>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    <p th:text="${#strings.abbreviate(comment.comment, 100)}"></p>
-                </div>
-                <a th:href="@{/review/{id}(id=${comment.review.id})}" class="btn btn-read-more">К рецензии</a>
-            </div>
-        </div>
-        <div class="navigation">
-            <button class="nav-btn" id="comments-prev-btn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span id="comments-position">1-4</span>
-            <button class="nav-btn" id="comments-next-btn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
+
 </main>
 
 <script>
@@ -221,7 +194,6 @@
         initNavigation('books');
         initNavigation('authors');
         initNavigation('reviews');
-        initNavigation('comments');
 
         // Обработчики фильтров
         document.querySelectorAll('.category-btn').forEach(btn => {

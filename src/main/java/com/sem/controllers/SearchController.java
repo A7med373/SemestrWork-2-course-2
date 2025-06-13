@@ -1,7 +1,6 @@
 package com.sem.controllers;
 
 import com.sem.service.BookProfileService;
-import com.sem.service.CommentService;
 import com.sem.service.ReviewService;
 import com.sem.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ public class SearchController {
     private final BookProfileService bookProfileService;
     private final UserProfileService userProfileService;
     private final ReviewService reviewService;
-    private final CommentService commentService;
 
     @GetMapping("/search")
     public String search(
@@ -37,9 +35,6 @@ public class SearchController {
                     break;
                 case "review":
                     model.addAttribute("reviews", reviewService.searchReviews(query));
-                    break;
-                case "comment":
-                    model.addAttribute("comments", commentService.searchComments(query));
                     break;
             }
         }
