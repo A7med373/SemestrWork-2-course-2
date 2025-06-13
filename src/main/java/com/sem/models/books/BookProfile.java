@@ -24,7 +24,7 @@ public class BookProfile {
     private String name;
 
     @Column
-    private Date year;
+    private int year;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")

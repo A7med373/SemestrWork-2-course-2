@@ -422,7 +422,7 @@
             });
         }
 
-        // Функция загрузки аватара
+        // Функция загрузки аватара (ИСПРАВЛЕННАЯ)
         function uploadAvatar(file) {
             const formData = new FormData();
             formData.append('avatar', file);
@@ -452,12 +452,13 @@
                 },
                 success: function(response) {
                     progressAlert.close();
-                    if (response.status === "success") {
-                        $('#user-avatar').attr('src', response.avatarUrl);
-                        Swal.fire('Успех!', 'Аватар обновлён', 'success');
-                    } else {
-                        Swal.fire('Ошибка', response.message, 'error');
-                    }
+                    // ИСПРАВЛЕНИЕ: Используем ответ напрямую и добавляем временную метку
+                    const newAvatarUrl = response.avatarUrl + '?t=' + new Date().getTime();
+
+                    // Обновляем все аватары на странице
+                    $('#user-avatar').attr('src', newAvatarUrl);
+
+                    Swal.fire('Успех!', 'Аватар обновлён', 'success');
                 },
                 error: function(xhr) {
                     progressAlert.close();

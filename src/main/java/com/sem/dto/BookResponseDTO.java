@@ -18,6 +18,6 @@ public class BookResponseDTO {
     private String name;
     private String author;
     private Genre genre;
-    private Date year;
+    private int year;
     private BookDescriptionDTO description;
 }

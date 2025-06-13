@@ -76,11 +76,9 @@ public class UserProfileService {
         }
 
         UserProfile existingProfile = getUserProfileById(userId);
-        existingProfile.setFirstName(updateDto.getFirstName());
-        existingProfile.setLastName(updateDto.getLastName());
-
-        // Важное исправление: установка description вместо lastName
-        existingProfile.setDescription(updateDto.getDescription());
+        existingProfile.setFirstName(updateDto.getFirstName() == null ? existingProfile.getFirstName() : updateDto.getFirstName());
+        existingProfile.setLastName(updateDto.getLastName() == null ? existingProfile.getLastName() : updateDto.getLastName());
+        existingProfile.setDescription(updateDto.getDescription() == null ? existingProfile.getDescription() : updateDto.getDescription());
 
         return userProfileRepository.save(existingProfile);
     }
