@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,30 +25,41 @@ public class JwtTokenProvider {
     @Autowired
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
                             @Value("${jwt.expiration}") long validity){
-        this.secret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.secret = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         validityInMilliseconds = validity;
     }
 
-    public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
-    public boolean validateToken(String token) throws Exception {
+    public boolean validateToken(String token) {
         try {
-            return !parseToken(token).getExpiration().before(new Date());
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .verifyWith(secret)
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+        } catch (ExpiredJwtException ex) {
+            // Токен истёк
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new Exception("JWT token is expired or invalid");
+            // Невалидный токен
+            return false;
         }
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseToken(token);
         String username = claims.getSubject();
-        List<String> roles = claims.get("roles", List.class);
+
+        List<String> roles;
+        Object rolesClaim = claims.get("roles");
+
+        if (rolesClaim instanceof String) {
+            roles = Collections.singletonList((String) rolesClaim);
+        } else if (rolesClaim instanceof List) {
+            roles = (List<String>) rolesClaim;
+        } else {
+            roles = Collections.emptyList();
+        }
 
         List<GrantedAuthority> authorities = roles.stream()
                 .map(SimpleGrantedAuthority::new)

@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -120,8 +121,6 @@ public class AuthorizationService {
                             request.getPassword()
                     )
             );
-            SecurityContextHolder.clearContext();
-            SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = generateToken(savedUser);
             return new AuthResponse(true, "Регистрация успешна", token);
         } catch (IllegalArgumentException e) {
@@ -142,23 +141,6 @@ public class AuthorizationService {
                             request.getPassword()
                     )
             );
-            logger.info(authentication.getName());
-            SecurityContextHolder.clearContext();
-            SecurityContext context = new SecurityContext() {
-                private Authentication authentication;
-                @Override
-                public Authentication getAuthentication() {
-                    return authentication;
-                }
-
-                @Override
-                public void setAuthentication(Authentication authentication) {
-                    this.authentication = authentication;
-                }
-            };
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-            logger.info(SecurityContextHolder.getContext().getAuthentication().getName());
             User user = (User) authentication.getPrincipal();
             logger.info("User authenticated: {}", user.getEmail());
 

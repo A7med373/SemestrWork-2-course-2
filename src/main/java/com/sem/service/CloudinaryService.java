@@ -38,16 +38,20 @@ public class CloudinaryService {
             return generateDefaultAvatarUrl();
         }
 
-        Map<String, String> options = ObjectUtils.asMap(
-                "folder", defaultFolder,
-                "public_id", "avatar_" + userId,
-                "overwrite", true,
-                "resource_type", "image",
-                "transformation", "c_fill,g_face,h_200,w_200"
-        );
+        try {
+            Map<String, String> options = ObjectUtils.asMap(
+                    "folder", defaultFolder,
+                    "public_id", "avatar_" + userId,
+                    "overwrite", true,
+                    "resource_type", "image",
+                    "transformation", "c_fill,g_face,h_200,w_200"
+            );
 
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
-        return (String) uploadResult.get("secure_url");
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
+            return (String) uploadResult.get("secure_url");
+        } catch (IOException e) {
+            return generateDefaultAvatarUrl();
+        }
     }
 
     public void deleteAvatar(UUID userId) throws IOException {

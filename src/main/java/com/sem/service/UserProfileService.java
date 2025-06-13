@@ -1,5 +1,6 @@
 package com.sem.service;
 
+import com.sem.dto.UserProfileUpdateDto;
 import com.sem.models.user.UserProfile;
 import com.sem.repository.UserProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -66,5 +67,21 @@ public class UserProfileService {
     @Transactional
     public List<UserProfile> searchUsersByName(String name){
         return userProfileRepository.findByName(name);
+    }
+
+    @Transactional
+    public UserProfile updateUserProfile(UUID userId, UserProfileUpdateDto updateDto) {
+        if (!authorizationService.hasAccess(userId, "USER")) {
+            throw new AccessDeniedException("You can only update your own profile");
+        }
+
+        UserProfile existingProfile = getUserProfileById(userId);
+        existingProfile.setFirstName(updateDto.getFirstName());
+        existingProfile.setLastName(updateDto.getLastName());
+
+        // Важное исправление: установка description вместо lastName
+        existingProfile.setDescription(updateDto.getDescription());
+
+        return userProfileRepository.save(existingProfile);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthorizationService authService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -35,8 +36,21 @@ public class AuthController {
 
     @ResponseBody
     @PostMapping("/api/auth/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserRegDto request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody UserRegDto request,
+            HttpServletResponse response // Добавляем
+    ) {
+        AuthResponse authResponse = authorizationService.authenticate(request);
+        if (authResponse.isSuccess()) {
+            // Устанавливаем куку
+            Cookie cookie = new Cookie("jwtToken", authResponse.getToken());
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(24 * 60 * 60);
+            response.addCookie(cookie);
+        }
+        return ResponseEntity.status(authResponse.isSuccess() ? 200 : 401)
+                .body(authResponse);
     }
 
     @GetMapping("/api/auth/logout")
