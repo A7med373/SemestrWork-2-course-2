@@ -58,7 +58,7 @@ public class BookProfileService {
         }
 
         BookDescription bookDescription = book.getBookDescription();
-        bookDescription.setDescription(description);
+        bookDescription.setText(description);
         bookDescriptionRepository.save(bookDescription);
         return book;
     }
@@ -81,7 +81,7 @@ public class BookProfileService {
         // Обновление описания
         if (updatedBook.getBookDescription() != null) {
             BookDescription description = existingBook.getBookDescription();
-            description.setDescription(updatedBook.getBookDescription().getDescription());
+            description.setText(updatedBook.getBookDescription().getText());
             bookDescriptionRepository.save(description);
         }
 
@@ -101,12 +101,12 @@ public class BookProfileService {
         bookProfileRepository.delete(book);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<BookProfile> searchBooksByDescription(String query) {
         return bookProfileRepository.findByDescription(query);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<BookProfile> searchBooksByName(String query) {
         return bookProfileRepository.findByName(query);
     }

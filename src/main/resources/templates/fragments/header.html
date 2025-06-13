@@ -62,9 +62,26 @@
             transform: scale(1.1);
             border-color: #4CAF50;
         }
+
+        /* Стили для уведомлений */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 <body>
+<!-- Уведомление об ошибках -->
+<div id="errorNotification" class="notification"></div>
+
 <header th:fragment="header">
     <div class="header-left">
         <div class="logo">Booklover</div>
@@ -125,47 +142,99 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // Функция для показа уведомления
+        function showNotification(message, isError = true) {
+            const notification = document.getElementById('errorNotification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isError ? '#ff6b6b' : '#4CAF50';
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Функция для проверки аутентификации
+        function checkAuth() {
             const token = localStorage.getItem('jwtToken');
             const guestSection = document.getElementById('guestSection');
             const userSection = document.getElementById('userSection');
             const logoutButton = document.getElementById('logoutButton');
             const userAvatar = document.getElementById('userAvatar');
 
-            if (token) {
-                const payload = parseJwt(token);
+            function showUserSection(payload) {
+                if (guestSection) guestSection.style.display = 'none';
+                if (userSection) userSection.style.display = 'flex';
 
-                if (payload && payload.userId) {
-                    // Извлекаем данные пользователя из токена
-                    const userId = payload.userId;
-                    const username = payload.sub;
-
-                    // Генерируем аватар на основе имени пользователя
-                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
-
-                    // Показываем секцию для авторизованных пользователей
-                    guestSection.style.display = 'none';
-                    userSection.style.display = 'flex';
-
-                    // Обработчик для кнопки выхода
-                    logoutButton.addEventListener('click', function() {
-                        localStorage.removeItem('jwtToken');
-                        window.location.href = '/';
-                    });
-
-                    // Обработчик для аватара (переход в профиль)
-                    userAvatar.addEventListener('click', function() {
-                        window.location.href = '/profile/' + userId;
-                    });
-                } else {
-                    // Если токен невалидный, показываем гостевой интерфейс
-                    guestSection.style.display = 'block';
-                    userSection.style.display = 'none';
+                // Обновляем аватар
+                if (userAvatar && payload.sub) {
+                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.sub)}&background=random`;
+                    userAvatar.onclick = () => window.location.href = '/profile/' + payload.userId;
                 }
-            } else {
-                // Показываем гостевой интерфейс если токена нет
-                guestSection.style.display = 'block';
-                userSection.style.display = 'none';
+
+                // Настраиваем кнопку выхода
+                if (logoutButton) {
+                    logoutButton.onclick = function() {
+                        // Выполняем выход через сервер
+                        fetch('/api/auth/logout', {
+                            method: 'GET',
+                            credentials: 'include'
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                localStorage.removeItem('jwtToken');
+                                window.location.href = '/';
+                            } else {
+                                showNotification('Ошибка при выходе из системы');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Logout error:', error);
+                            showNotification('Ошибка при выходе из системы');
+                        });
+                    };
+                }
+            }
+
+            function showGuestSection() {
+                if (guestSection) guestSection.style.display = 'block';
+                if (userSection) userSection.style.display = 'none';
+            }
+
+            if (token) {
+                try {
+                    const payload = parseJwt(token);
+                    if (payload && payload.userId) {
+                        showUserSection(payload);
+
+                        // Добавляем токен в заголовки всех последующих запросов
+                        if (window.axios) {
+                            axios.interceptors.request.use(config => {
+                                config.headers.Authorization = `Bearer ${token}`;
+                                return config;
+                            });
+                        }
+
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Invalid token', e);
+                    localStorage.removeItem('jwtToken');
+                }
+            }
+            showGuestSection();
+        }
+
+        // Запускаем проверку авторизации при загрузке
+        document.addEventListener('DOMContentLoaded', checkAuth);
+
+        // Проверяем каждые 10 секунд
+        setInterval(checkAuth, 10000);
+
+        // Проверяем при изменении localStorage (в других вкладках)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'jwtToken') {
+                checkAuth();
             }
         });
     </script>

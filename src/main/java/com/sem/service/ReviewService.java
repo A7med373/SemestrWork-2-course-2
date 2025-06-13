@@ -35,7 +35,7 @@ public class ReviewService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Review review = new Review();
-        review.setReview(reviewText);
+        review.setText(reviewText);
         review.setUser(user);
 
         return reviewRepository.save(review);
@@ -55,7 +55,7 @@ public class ReviewService {
             throw new AccessDeniedException("You can only update your own reviews");
         }
 
-        review.setReview(newText);
+        review.setText(newText);
         return reviewRepository.save(review);
     }
 

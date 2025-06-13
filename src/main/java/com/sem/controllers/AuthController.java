@@ -3,11 +3,11 @@ package com.sem.controllers;
 import com.sem.dto.AuthResponse;
 import com.sem.dto.UserRegDto;
 import com.sem.service.AuthorizationService;
-import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +46,7 @@ public class AuthController {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setMaxAge(0);
         response.addCookie(jwtCookie);
+        SecurityContextHolder.clearContext();
 
         return "redirect:/";
     }

@@ -14,10 +14,10 @@ import java.util.UUID;
 @Repository
 public interface BookRepository extends JpaRepository<BookProfile, Long> {
     Optional<BookProfile> findById(Long id);
-    @Query("select book from BookDescription d where d.description like CONCAT('%', :desc, '%')")
+    @Query("SELECT d.book FROM BookDescription d WHERE CAST(d.text AS string) LIKE %:desc%")
     List<BookProfile> findByDescription(@Param("desc") String description);
     @Query("Select b from BookProfile b where b.name like CONCAT('%', :name, '%')")
-    List<BookProfile> findByName(@Param("name") String description);
+    List<BookProfile> findByName(@Param("name") String name);
     List<BookProfile> findByGenre(Genre genre);
     @Query("select b from BookProfile b order by b.year desc limit :limit offset :offset")
     List<BookProfile> findNewest(@Param("limit") int limit, @Param("offset") int offset);

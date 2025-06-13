@@ -7,9 +7,36 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-field {
+            border: 1px solid #e74a3b !important;
+        }
+
+        /* Улучшенные стили сообщений с явным цветом текста */
+        .message {
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            color: #333; /* Явное указание цвета текста */
+        }
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828; /* Красный текст для ошибок */
+            border: 1px solid #ffcdd2;
+        }
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32; /* Зеленый текст для успеха */
+            border: 1px solid #c8e6c9;
+        }
+        .spinner {
+            color: #fff; /* Белый цвет для спиннера */
+        }
+    </style>
 </head>
 <body class="page-container">
-<!-- Шапка из фрагмента -->
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main>
@@ -47,7 +74,12 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <button type="submit" class="btn btn-primary">
+                <span id="registerBtnText">Зарегистрироваться</span>
+                <span id="registerSpinner" class="spinner" style="display:none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
         </form>
 
         <div class="auth-footer">
@@ -58,64 +90,138 @@
     </div>
 </main>
 
-<!-- Подвал из фрагмента -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Проверяем наличие токена
         const token = localStorage.getItem('jwtToken');
+        if (token) window.location.href = '/';
 
-        // Если токен есть - перенаправляем на главную
-        if (token) {
-            window.location.href = '/';
-        }
+        const registerForm = document.getElementById('registerForm');
+        const registerBtnText = document.getElementById('registerBtnText');
+        const registerSpinner = document.getElementById('registerSpinner');
+        const messageElement = document.getElementById('registerMessage');
 
-        // Обработка формы регистрации
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        // Элементы формы для подсветки ошибок
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const messageElement = document.getElementById('registerMessage');
+            // Сбросить подсветку ошибок
+            resetErrorHighlighting();
 
-            // Проверка совпадения паролей
-            if (password !== confirmPassword) {
-                messageElement.textContent = 'Пароли не совпадают';
-                messageElement.className = 'message error';
-                return;
+            // Валидация на клиенте
+            let hasError = false;
+
+            if (!firstNameInput.value.trim()) {
+                highlightError(firstNameInput, "Имя обязательно");
+                hasError = true;
             }
+
+            if (!lastNameInput.value.trim()) {
+                highlightError(lastNameInput, "Фамилия обязательна");
+                hasError = true;
+            }
+
+            if (!emailInput.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+                highlightError(emailInput, "Некорректный email");
+                hasError = true;
+            }
+
+            if (passwordInput.value.length < 6) {
+                highlightError(passwordInput, "Пароль должен содержать не менее 6 символов");
+                hasError = true;
+            }
+
+            if (registerForm.password.value !== registerForm.confirmPassword.value) {
+                showMessage('Пароли не совпадают', 'error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Показываем спиннер загрузки
+            registerBtnText.style.display = 'none';
+            registerSpinner.style.display = 'inline-block';
 
             try {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ firstName, lastName, email, password })
+                    body: JSON.stringify({
+                        firstName: registerForm.firstName.value,
+                        lastName: registerForm.lastName.value,
+                        email: registerForm.email.value,
+                        password: registerForm.password.value
+                    })
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    // Сохраняем токен в localStorage
+                if (data.success) {
+                    showMessage(data.message, 'success');
                     localStorage.setItem('jwtToken', data.token);
-
-                    // Показываем сообщение об успехе
-                    messageElement.textContent = 'Регистрация успешна! Перенаправление...';
-                    messageElement.className = 'message success';
-
-                    // Перенаправление на главную
-                    setTimeout(() => window.location.href = '/', 2000);
+                    setTimeout(() => window.location.href = '/', 1000);
                 } else {
-                    messageElement.textContent = data.message || 'Ошибка регистрации';
-                    messageElement.className = 'message error';
+                    // Обработка ошибок с сервера
+                    showMessage(data.message, 'error');
+
+                    // Подсветка полей с ошибками на основе сообщения
+                    if (data.message.includes("email")) {
+                        highlightError(emailInput, data.message);
+                    } else if (data.message.includes("пароль")) {
+                        highlightError(passwordInput, data.message);
+                    }
                 }
             } catch (error) {
-                messageElement.textContent = 'Ошибка сети';
-                messageElement.className = 'message error';
+                showMessage('Ошибка сети. Попробуйте позже', 'error');
+            } finally {
+                // Восстанавливаем кнопку
+                registerBtnText.style.display = 'inline-block';
+                registerSpinner.style.display = 'none';
             }
+        });
+
+        function showMessage(text, type) {
+            messageElement.textContent = text;
+            messageElement.className = `message ${type}`;
+            setTimeout(() => {
+                messageElement.textContent = '';
+                messageElement.className = 'message';
+            }, 5000);
+        }
+
+        function highlightError(inputElement, message) {
+            inputElement.classList.add('error-field');
+            showMessage(message, 'error');
+        }
+
+        function resetErrorHighlighting() {
+            firstNameInput.classList.remove('error-field');
+            lastNameInput.classList.remove('error-field');
+            emailInput.classList.remove('error-field');
+            passwordInput.classList.remove('error-field');
+        }
+
+        // Слушатели для сброса ошибок при вводе
+        firstNameInput.addEventListener('input', () => {
+            firstNameInput.classList.remove('error-field');
+        });
+
+        lastNameInput.addEventListener('input', () => {
+            lastNameInput.classList.remove('error-field');
+        });
+
+        emailInput.addEventListener('input', () => {
+            emailInput.classList.remove('error-field');
+        });
+
+        passwordInput.addEventListener('input', () => {
+            passwordInput.classList.remove('error-field');
         });
     });
 </script>

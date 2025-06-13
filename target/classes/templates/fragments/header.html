@@ -6,6 +6,63 @@
     <title>Booklover</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Стили для улучшения видимости кнопок */
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .search-icon:hover {
+            color: #4CAF50 !important;
+        }
+
+        .btn-logout:hover {
+            color: #ff6b6b !important;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            border-color: #4CAF50;
+        }
+    </style>
 </head>
 <body>
 <header th:fragment="header">
@@ -22,13 +79,23 @@
 
     <div class="header-right">
         <div id="userSection" class="auth-section" style="display: none;">
-            <div class="user-profile">
-                <img id="userAvatar" src="https://ui-avatars.com/api/?name=Back&Ground=random" alt="Аватар" class="user-avatar" onclick="window.location.href='/profile'">
-                <button id="logoutButton" class="btn btn-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
+            <div class="header-icons">
+                <div class="user-profile">
+                    <!-- Значок лупы для поиска -->
+                    <a href="/search" class="icon-btn search-icon" title="Поиск">
+                        <i class="fas fa-search"></i>
+                    </a>
 
+                    <!-- Аватар с ссылкой на профиль -->
+                    <img id="userAvatar" src="https://ui-avatars.com/api/?name=Booklover&background=random"
+                         alt="Аватар" class="user-avatar">
+
+                    <!-- Кнопка выхода -->
+                    <button id="logoutButton" class="icon-btn btn-logout" title="Выйти">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div id="guestSection" class="auth-section">
@@ -40,24 +107,64 @@
     </div>
 
     <script>
+        // Функция для декодирования JWT токена
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(
+                    window.atob(base64)
+                    .split('')
+                    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+                );
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error('Error parsing JWT', e);
+                return null;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('jwtToken');
             const guestSection = document.getElementById('guestSection');
             const userSection = document.getElementById('userSection');
             const logoutButton = document.getElementById('logoutButton');
+            const userAvatar = document.getElementById('userAvatar');
+
+            function showUserSection(payload) {
+                if (guestSection) guestSection.style.display = 'none';
+                if (userSection) userSection.style.display = 'flex';
+
+                // Обновляем аватар
+                if (userAvatar && payload.sub) {
+                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.sub)}&background=random`;
+                    userAvatar.onclick = () => window.location.href = '/profile/' + payload.userId;
+                }
+
+                // Настраиваем кнопку выхода
+                if (logoutButton) {
+                    logoutButton.onclick = function() {
+                        localStorage.removeItem('jwtToken');
+                        window.location.href = '/';
+                    };
+                }
+            }
+
+            function showGuestSection() {
+                if (guestSection) guestSection.style.display = 'block';
+                if (userSection) userSection.style.display = 'none';
+            }
 
             if (token) {
-                guestSection.style.display = 'none';
-                userSection.style.display = 'block';
-
-                // Обработчик для кнопки выхода
-                logoutButton.addEventListener('click', function() {
-                    localStorage.removeItem('jwtToken');
-                    window.location.href = '/';
-                });
+                const payload = parseJwt(token);
+                if (payload && payload.userId) {
+                    showUserSection(payload);
+                } else {
+                    showGuestSection();
+                }
             } else {
-                guestSection.style.display = 'block';
-                userSection.style.display = 'none';
+                showGuestSection();
             }
         });
     </script>

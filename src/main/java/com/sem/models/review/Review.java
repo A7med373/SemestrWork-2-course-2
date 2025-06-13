@@ -22,9 +22,9 @@ public class Review {
     @Column
     private Long id;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     @Lob
-    private String review;
+    private String text;
 
     @ManyToOne
     @JoinColumn(name = "userId")

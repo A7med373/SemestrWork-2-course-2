@@ -1,6 +1,7 @@
 package com.sem.controllers;
 
 import com.sem.jwt.JwtTokenProvider;
+import com.sem.models.user.User;
 import com.sem.models.user.UserProfile;
 import com.sem.service.AuthorizationService;
 import com.sem.service.BookProfileService;
@@ -8,6 +9,9 @@ import com.sem.service.UserProfileService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +34,11 @@ public class UserProfileController {
     @GetMapping("/{id}")
     public String getUserProfile(
             @PathVariable UUID id,
-            Authentication authentication,
             Model model) {
+
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
 
         // Получаем профиль пользователя
         UserProfile userProfile = userProfileService.getUserProfileById(id);

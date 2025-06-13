@@ -349,3 +349,43 @@
          margin: 1rem;
      }
  }
+
+ .header-icons {
+     display: flex;
+     align-items: center;
+     gap: 15px;
+ }
+
+ .icon-btn {
+     background-color: rgba(255, 255, 255, 0.2);
+     border-radius: 50%;
+     width: 36px;
+     height: 36px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.3s;
+     color: var(--dark-color) !important;
+     border: 1px solid rgba(0, 0, 0, 0.1);
+     cursor: pointer;
+     text-decoration: none;
+ }
+
+ .icon-btn:hover {
+     background-color: rgba(0, 0, 0, 0.05);
+     transform: scale(1.05);
+ }
+
+ .search-icon:hover {
+     color: var(--primary-color) !important;
+ }
+
+ .btn-logout:hover {
+     color: var(--danger-color) !important;
+ }
+
+ .user-profile {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }

@@ -1,11 +1,8 @@
 package com.sem.jwt;
 
-import com.sem.models.user.UserProfile;
-import com.sem.service.AuthorizationService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,8 +23,7 @@ public class JwtTokenProvider {
     private final long validityInMilliseconds;
     @Autowired
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-                            @Value("${jwt.expiration}") long validity,
-                            AuthorizationService authorisationService){
+                            @Value("${jwt.expiration}") long validity){
         this.secret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         validityInMilliseconds = validity;
     }
@@ -57,7 +53,7 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        return new UsernamePasswordAuthenticationToken(username, token, authorities);
     }
 
     private Claims parseToken(String token) {

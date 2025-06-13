@@ -7,9 +7,34 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Улучшенные стили сообщений с явным цветом текста */
+        .message {
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+            color: #333; /* Явное указание цвета текста */
+        }
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828; /* Красный текст для ошибок */
+            border: 1px solid #ffcdd2;
+        }
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32; /* Зеленый текст для успеха */
+            border: 1px solid #c8e6c9;
+        }
+        .spinner {
+            margin-left: 10px;
+            color: #fff; /* Белый цвет для спиннера */
+        }
+    </style>
 </head>
 <body class="page-container">
-<!-- Шапка из фрагмента -->
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main>
@@ -28,7 +53,12 @@
                 <label for="loginPassword"><i class="fas fa-lock"></i> Пароль</label>
                 <input type="password" id="loginPassword" name="password" required placeholder="Ваш пароль">
             </div>
-            <button type="submit" class="btn btn-primary">Войти</button>
+            <button type="submit" class="btn btn-primary">
+                <span id="loginBtnText">Войти</span>
+                <span id="loginSpinner" class="spinner" style="display:none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
         </form>
 
         <div class="auth-footer">
@@ -40,26 +70,37 @@
     </div>
 </main>
 
-<!-- Подвал из фрагмента -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Проверяем наличие токена
         const token = localStorage.getItem('jwtToken');
+        if (token) window.location.href = '/';
 
-        // Если токен есть - перенаправляем на главную
-        if (token) {
-            window.location.href = '/';
-        }
+        const loginForm = document.getElementById('loginForm');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const messageElement = document.getElementById('loginMessage');
 
-        // Обработка формы входа
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const messageElement = document.getElementById('loginMessage');
+            // Сброс предыдущих сообщений
+            messageElement.style.display = 'none';
+            messageElement.textContent = '';
+            messageElement.className = 'message';
+
+            const email = loginForm.email.value.trim();
+            const password = loginForm.password.value.trim();
+
+            if (!email || !password) {
+                showMessage('Заполните все поля', 'error');
+                return;
+            }
+
+            // Показываем спиннер загрузки
+            loginBtnText.style.display = 'none';
+            loginSpinner.style.display = 'inline-block';
 
             try {
                 const response = await fetch('/api/auth/login', {
@@ -69,26 +110,32 @@
                 });
 
                 const data = await response.json();
+                console.log('Authentication response:', data);
 
-                if (response.ok) {
-                    // Сохраняем токен в localStorage
+                if (data.success) {
+                    showMessage(data.message, 'success');
                     localStorage.setItem('jwtToken', data.token);
-
-                    // Показываем сообщение об успехе
-                    messageElement.textContent = 'Вход выполнен! Перенаправление...';
-                    messageElement.className = 'message success';
-
-                    // Перенаправление на главную
                     setTimeout(() => window.location.href = '/', 1000);
                 } else {
-                    messageElement.textContent = data.message || 'Ошибка входа';
-                    messageElement.className = 'message error';
+                    showMessage(data.message || 'Ошибка аутентификации', 'error');
                 }
             } catch (error) {
-                messageElement.textContent = 'Ошибка сети';
-                messageElement.className = 'message error';
+                console.error('Authentication error:', error);
+                showMessage('Ошибка сети. Попробуйте позже', 'error');
+            } finally {
+                loginBtnText.style.display = 'inline-block';
+                loginSpinner.style.display = 'none';
             }
         });
+
+        function showMessage(text, type) {
+            messageElement.textContent = text;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
     });
 </script>
 </body>

@@ -71,7 +71,7 @@ public class CommentService {
         return commentRepository.findByAuthorId(userId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<Comment> searchComments(String query) {
         return commentRepository.findByComment(query);
     }

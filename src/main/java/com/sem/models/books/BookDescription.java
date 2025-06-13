@@ -16,7 +16,7 @@ public class BookDescription {
     @Lob
     @Getter
     @Setter
-    private String description;
+    private String text;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

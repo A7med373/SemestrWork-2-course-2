@@ -19,7 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r LEFT JOIN FETCH r.comments WHERE r.id = :id")
     Optional<Review> findByIdWithComments(@Param("id") Long id);
 
-    @Query("SELECT r FROM Review r where r.review like CONCAT('%', :text, '%')")
+    @Query("SELECT r FROM Review r WHERE CAST(r.text AS string) LIKE %:text%")
     List<Review> findByReviewContainingIgnoreCase(@Param("text") String text);
 
     @Query("SELECT r FROM Review r LEFT JOIN FETCH r.comments WHERE r.user.id = :userId")
